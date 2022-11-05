@@ -56,7 +56,7 @@ notificationManager.cancel(1)
 
 ## Notyfikacja na ekranie blokady
 
-Wygląd notyfikacji na ekranie blokady określa wywołanie metody `setVisibility(visibility: Int)` na builderze. Dostępne opcje to:
+Wygląd notyfikacji na ekranie blokady określa wywołanie metody `setVisibility` na builderze. Dostępne opcje to:
 - `VISIBILITY_PUBLIC` - zostanie pokazana cała zawartość kafelka
 - `VISIBILITY_PRIVATE` - zostaną pokazane tylko tytuł i ikona
 - `VISIBILITY_SECRET` - notyfikacja nie zostanie pokazana w ogóle
@@ -72,4 +72,54 @@ Wybierając `VISIBILITY_PRIVATE` możemy zdefiniować własny wygląd kafelka pr
         .build()
 )
 ```
+
+## Przycisk w notyfikacji
+
+Musimy stworzyć klasę dziediczącą po `BroadcastReciever` i w nadpisanej metodzie określić co ma się wydarzyć:
+
+```
+class MyBroadcastReciever: BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        val message = intent?.getStringExtra("MyMessage")
+        if(message != null) {
+            Toast.makeText(
+                context,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+}
+```
+
+Klasę musimy podać w manifeście:
+
+```
+<application(...)
+    <receiver android:name=".MyBroadcastReciever"/>
+</application>
+```
+
+Przycisk dodajemy poprze wywołanie `.onAction` na builderze i podanie mu nazwy akcji oraz pending intenta oraz opcjonalnie ikony:
+
+```
+val intent = Intent(context, MyReciever::class.java).apply {
+    putExtra("Message", "Clicked")
+}
+val pendingIntent = PendingIntent.getBroadcast(
+    context,
+    0,
+    intent,
+    PendingIntent.FLAG_IMMUTABLE
+)
+```
+
+```
+// jeśli nie chcemy ikony podajemy zero w pierwszym argumencie
+.onAction(0, "ACTION", pendingIntent)
+```
+
+## Deep Link
+
+Deep Link to mechanizm pozwalający na przejście do konkretnej aktywności z notyfikacji.
 
