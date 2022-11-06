@@ -123,3 +123,17 @@ val pendingIntent = PendingIntent.getBroadcast(
 
 Deep Link to mechanizm pozwalający na przejście do konkretnej aktywności z notyfikacji.
 
+Tworzymy Intent otwierający wybraną aktywność, nastepnie PendingIntent:
+
+```
+val clickIntent = Intent(this, MainActivity::class.java)
+val clickPendingIntent = PendingIntent.getActivity(
+    this, 1, clickIntent, PendingIntent.FLAG_IMMUTABLE
+)
+```
+
+Dodajemy do builera wywołanie `.setContentIntent`, dzięki niemu klikając kafelek zostaniemy przeniesieni do wybranej aktywności:
+```
+.addActyion(0, "ACTION", pendingIntent)
+.setContentIntent(clickPendingIntent)
+```
